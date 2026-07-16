@@ -19,13 +19,9 @@
 Este repositório documenta a construção de um **Home Lab de SOC (Security Operations Center)**, do provisionamento da infraestrutura até a simulação de eventos de segurança reais, com o objetivo de praticar:
 
 🔍 Instalação e administração de um SIEM (**Wazuh**)
-
 🖥️ Deployment de agentes em múltiplos sistemas operacionais
-
 🎛️ Calibração de regras de coleta para reduzir ruído e focar em telemetria relevante
-
 ⚔️ Simulação de técnicas de ataque mapeadas ao **MITRE ATT&CK**
-
 
 > 💡 Ambiente 100% funcional, construído com recursos gratuitos/créditos de nuvem — ideal para portfólio de segurança ofensiva/defensiva.
 
@@ -51,21 +47,21 @@ Este repositório documenta a construção de um **Home Lab de SOC (Security Ope
 ## 🏗️ Arquitetura
 
 ```
-                         ┌────────────────────────────────┐
-                         │       Wazuh Manager (GCP)      │
-                         │   • Wazuh Indexer              │
-                         │   • Wazuh Manager              │
-                         │   • Wazuh Dashboard            │
-                         │   Ubuntu 22.04 | e2-standard-2 │
-                         └────────────────┬───────────────┘
-                                          │
-                    ┌─────────────────────┼──────────────────────┐
-                    │                                            │
-         ┌──────────┴───────────┐                    ┌───────────┴────────────┐
-         │    Endpoint Linux    │                    │    Endpoint Windows    │
-         │  GCP · rede interna  │                    │  VirtualBox · local    │
-         │  Ubuntu 22.04        │                    │  Windows 10/11         │
-         └──────────────────────┘                    └────────────────────────┘
+                        ┌───────────────────────────────┐
+                        │       Wazuh Manager (GCP)     │
+                        │   • Wazuh Indexer             │
+                        │   • Wazuh Manager             │
+                        │   • Wazuh Dashboard           │
+                        │  Ubuntu 22.04 | e2-standard-2 │
+                        └────────────────┬──────────────┘
+                                         │
+                    ┌────────────────────┼─────────────────────┐
+                    │                                          │
+         ┌──────────┴───────────┐                  ┌───────────┴────────────┐
+         │    Endpoint Linux    │                  │    Endpoint Windows    │
+         │  GCP · rede interna  │                  │  VirtualBox · local    │
+         │  Ubuntu 22.04        │                  │  Windows 10/11         │
+         └──────────────────────┘                  └────────────────────────┘
 ```
 
 <div align="center">
@@ -115,6 +111,8 @@ Um problema conhecido e recorrente da plataforma em regiões de alta demanda. A 
 
 > 💻 Acesso via **SSH no navegador**, direto pelo console do GCP — sem gerenciar chaves `.pem`.
 
+<img width="906" height="727" alt="09-ssh-terminal" src="https://github.com/user-attachments/assets/3b49180b-6b41-425b-897d-ea37f893ff25" />
+
 ---
 
 ## ⚙️ 2. Instalação do Wazuh Manager (all-in-one)
@@ -130,6 +128,8 @@ wget https://packages.wazuh.com/4.14/wazuh-install.sh
 sudo bash wazuh-install.sh -a
 ```
 
+<img width="767" height="187" alt="01-wget-download" src="https://github.com/user-attachments/assets/9db44dc9-0047-48e8-8bad-74caa2c1d9a3" />
+
 Ao final, o script exibe as credenciais:
 
 ```
@@ -139,9 +139,26 @@ Ao final, o script exibe as credenciais:
 🔑 Password: <senha gerada automaticamente>
 ```
 
+<img width="765" height="716" alt="02-install-summary" src="https://github.com/user-attachments/assets/4fef547a-2fa6-469c-9534-0899bbf77610" />
+
+
 > 🚨 **Atenção:** a senha só aparece uma vez — copie e guarde em local seguro imediatamente.
 
 🌐 **Acesso ao dashboard:** `https://<IP_EXTERNO_DA_VM>` *(aceitar o aviso de certificado autoassinado)*
+
+<img width="1536" height="692" alt="03-dashboard-login" src="https://github.com/user-attachments/assets/57f652f6-c700-44fe-b729-9c5537401ef0" />
+
+
+### 🖥️ Visão geral do Dashboard
+
+Após o login, a tela inicial (*Overview*) resume o estado do ambiente: agentes registrados, alertas por severidade nas últimas 24h, e atalhos para os principais módulos (FIM, Malware Detection, Threat Hunting, MITRE ATT&CK, Vulnerability Detection, entre outros):
+
+<img width="1533" height="696" alt="04-dashboard-overview" src="https://github.com/user-attachments/assets/d96d5d82-be96-40b9-b26e-380b1cd5fa58" />
+
+
+O Wazuh também expõe módulos prontos de compliance (PCI DSS, GDPR, HIPAA, NIST 800-53) e integrações de nuvem (AWS, GCP, Docker, Office 365, GitHub) — não utilizados neste lab, mas disponíveis para expansão futura:
+
+<img width="1532" height="627" alt="05-dashboard-modules" src="https://github.com/user-attachments/assets/4ec2a899-c238-486c-8fcd-452a83463881" />
 
 ---
 
@@ -163,6 +180,8 @@ Regra criada no GCP para permitir a comunicação dos agentes com o manager:
 
 - 🔌 **1514/tcp** — comunicação de eventos do agente com o manager
 - 📝 **1515/tcp** — enrollment (registro) do agente
+
+<img width="558" height="552" alt="07-firewall-rule" src="https://github.com/user-attachments/assets/947d3038-0e6e-4331-a96c-c191e79efa15" />
 
 ---
 
@@ -197,6 +216,11 @@ INFO: Connected to the server ([IP_MANAGER]:1514/tcp)
 ## 🪟 5. Instalação do agente — Endpoint Windows
 
 > 🏠 Endpoint executado localmente em VirtualBox, conectando-se ao manager na nuvem via **IP externo**.
+
+> 📝 *Nota: durante o planejamento, chegou-se a avaliar um endpoint Windows Server na própria nuvem — o GCP oferece diversas versões (2019 a 2025), mas VMs Windows exigem upgrade de billing na conta, então a opção final foi manter esse endpoint localmente.*
+
+<img width="490" height="317" alt="06-windows-server-selection" src="https://github.com/user-attachments/assets/00d6b722-a0cb-4823-a7b8-8a7e42c7b8f9" />
+
 
 ```powershell
 # ⬇️ Download do instalador MSI (mesma versão do manager)
@@ -294,6 +318,9 @@ sudo touch /etc/teste-fim.txt
 | Jul 15, 2026 @ 10:23:29 | `/etc/teste-fim.txt` | `added` | File added to the system | 5 | 554 |
 
 </div>
+
+<img width="1492" height="178" alt="08-fim-event" src="https://github.com/user-attachments/assets/e3f26cb9-c751-4d57-af72-46e657c6f704" />
+
 
 ✅ Detecção confirmada em **tempo real**, segundos após a criação do arquivo.
 
