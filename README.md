@@ -326,7 +326,7 @@ sudo touch /etc/teste-fim.txt
 
 ### 🎯 7.2 Outros cenários simulados *(em andamento)*
 
-- [ ] 🔓 Brute force SSH (tentativas de login falho)
+- [x] 🔓 [Brute force SSH (tentativas de login falho) — detecção + bloqueio automático via Active Response](https://github.com/vick2715/test_01_ssh_bruteforce-homelab-wazuh-SIEM)
 - [ ] 🔺 Escalada de privilégio via `sudo`
 - [ ] ⏰ Persistência via cron job malicioso
 - [ ] 🦠 Teste EICAR (arquivo de teste padrão de antivírus)
