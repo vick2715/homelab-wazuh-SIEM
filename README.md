@@ -328,7 +328,6 @@ sudo touch /etc/teste-fim.txt
 
 - [x] 🔓 [Brute force SSH (tentativas de login falho) — detecção + bloqueio automático via Active Response](https://github.com/vick2715/test_01_ssh_bruteforce-homelab-wazuh-SIEM)
 - [x] 🔺 [Escalada de privilégio via `sudo` (backdoor em `/etc/sudoers.d/`) — detecção via FIM + análise de logs de sudo](https://github.com/vick2715/test-02-privilege-escalation)
-- [ ] ⏰ Persistência via cron job malicioso
 - [ ] 🦠 Teste EICAR (arquivo de teste padrão de antivírus)
 - [ ] 🌐 Port scan com Nmap
 - [ ] 🤖 Emulação de adversário com Atomic Red Team (MITRE ATT&CK)
